@@ -38,7 +38,7 @@ from utils.helpers import (
 # ── Page configuration ────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Prompt Evolution Visualizer",
-    page_icon="🔬",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -139,16 +139,15 @@ footer    { visibility: hidden; }
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🔬 Evolution Visualizer")
+    st.markdown("##  Evolution Visualizer")
     st.markdown("---")
     st.markdown("""
 **How it works**
 
 1. Enter a base prompt below
-2. Click **Generate**
+2. Click **Run Analysis**
 3. The app creates 8 prompt variants
-4. FLAN-T5 generates responses for each
-5. Explore the tree, cards, and charts
+4. Explore the tree, cards, and charts
 
 ---
 **Variant types**
@@ -161,9 +160,6 @@ with st.sidebar:
 | 🟡 | Tone |
 | 🔴 | Detail |
 
----
-**Model:** `google/flan-t5-small`
-*(downloads ~300 MB on first run)*
 
 ---
 """)
@@ -175,15 +171,16 @@ with st.sidebar:
 # ── Hero Banner ───────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero-banner">
-  <h1>🔬 Prompt-to-Response Evolution Visualizer</h1>
-  <p>Discover how small changes in phrasing transform AI-generated responses —
-     with interactive trees, side-by-side panels, and quantitative NLP charts.</p>
+  <h1> Prompt-to-Response Evolution Visualizer</h1>
+  <p> Examine how structural and tonal modifications to a single prompt alter
+    the outputs of a transformer language model. Seven variants are generated
+    automatically and evaluated across length, sentiment, and token metrics.</p>
 </div>
 """, unsafe_allow_html=True)
 
 
 # ── Input Section ─────────────────────────────────────────────────────────────
-st.markdown('<div class="section-header">📝 Base Prompt</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-header"> Base Prompt</div>', unsafe_allow_html=True)
 
 col_input, col_btn = st.columns([5, 1], gap="medium")
 
@@ -197,16 +194,16 @@ with col_input:
 
 with col_btn:
     st.markdown("<br>", unsafe_allow_html=True)
-    generate_clicked = st.button("⚡ Generate", use_container_width=True)
+    generate_clicked = st.button("Run Analysis", use_container_width=True)
 
 
 # ── Pre-warm model note ───────────────────────────────────────────────────────
-with st.expander("ℹ️ First-run note", expanded=False):
-    st.info(
-        "On the first click, the FLAN-T5-small model (~300 MB) will be "
-        "downloaded from HuggingFace Hub and cached locally. "
-        "Subsequent runs are instant."
-    )
+# with st.expander("ℹ️ First-run note", expanded=False):
+#     st.info(
+#         "On the first click, the FLAN-T5-small model (~300 MB) will be "
+#         "downloaded from HuggingFace Hub and cached locally. "
+#         "Subsequent runs are instant."
+#     )
 
 
 # ── Main Logic ────────────────────────────────────────────────────────────────
@@ -214,7 +211,7 @@ if generate_clicked:
     base_prompt = sanitize_prompt(base_prompt_raw)
 
     if not base_prompt:
-        st.warning("⚠️  Please enter a prompt before generating.")
+        st.warning("  Please enter a prompt before generating.")
         st.stop()
 
     # ── 1. Generate variants ──────────────────────────────────────────────
@@ -232,13 +229,13 @@ if generate_clicked:
     from modules.response_generator import generate_responses as _gen
     with st.spinner(f"Generating {total} responses with FLAN-T5…"):
         results = _gen(variants)
-        progress_bar.progress(100, text="✅ All responses generated!")
+        progress_bar.progress(100, text=" All responses generated!")
 
     # ── 3. Analysis ───────────────────────────────────────────────────────
     df = build_analysis_dataframe(results)
 
     # ── KPI strip ─────────────────────────────────────────────────────────
-    st.markdown('<div class="section-header">📊 Overview Metrics</div>',
+    st.markdown('<div class="section-header"> Overview Metrics</div>',
                 unsafe_allow_html=True)
 
     kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
@@ -262,9 +259,16 @@ if generate_clicked:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── 4. Prompt Evolution Tree ──────────────────────────────────────────
-    st.markdown('<div class="section-header">🌳 Prompt Evolution Tree</div>',
-                unsafe_allow_html=True)
-
+    # st.markdown('<div class="section-header"> <h2>Prompt Evolution Tree</h2></div>',
+    #             unsafe_allow_html=True)
+    st.markdown("""
+<div class="section-header">
+  <h2>Prompt Evolution Tree </h2>
+  <p>This diagram shows the evolution from the base prompt to its variants and generated responses. 
+Hover over nodes to view the full text.</p>
+</div>
+""", unsafe_allow_html=True)
+    
     tree_fig = build_prompt_tree(base_prompt, results)
     st.plotly_chart(tree_fig, use_container_width=True)
 
@@ -308,10 +312,10 @@ if generate_clicked:
                 unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4 = st.tabs([
-        "📏 Response Length",
-        "😊 Sentiment Polarity",
-        "🔢 Token Count",
-        "🎯 Polarity vs Subjectivity",
+        " Response Length",
+        " Sentiment Polarity",
+        " Token Count",
+        " Polarity vs Subjectivity",
     ])
 
     with tab1:
@@ -325,7 +329,7 @@ if generate_clicked:
 
     # ── 7. Raw Metrics Table (optional) ──────────────────────────────────
     if show_raw_table:
-        st.markdown('<div class="section-header">🗃️ Raw Metrics Table</div>',
+        st.markdown('<div class="section-header"> Raw Metrics Table</div>',
                     unsafe_allow_html=True)
         st.dataframe(
             df_to_display(df).style.background_gradient(
@@ -351,9 +355,9 @@ else:
     # ── Landing / empty state ─────────────────────────────────────────────
     st.markdown("""
     <div style="text-align:center;padding:3rem 1rem;color:#94A3B8;">
-      <div style="font-size:4rem;">🔬</div>
-      <h3 style="color:#64748B;">Ready to Explore Prompt Dynamics</h3>
-      <p>Type a prompt above and click <b>⚡ Generate</b> to see how phrasing
+      <div style="font-size:4rem;"></div>
+      <h3 style="color:#64748B;">Ready to Explore Prompt Visualizer</h3>
+      <p>Type a prompt above and click <b>Run Analysis</b> to see how phrasing
       changes shape AI responses — from tone shifts to detail levels.</p>
       <br>
       <p style="font-size:0.85rem;">
