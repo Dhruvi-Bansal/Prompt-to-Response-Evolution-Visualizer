@@ -158,7 +158,7 @@ Prompt-Evolution-Visualizer
 
 **Model**
 
-* FLAN-T5 Small
+* FLAN-T5 Base
 
 
 
