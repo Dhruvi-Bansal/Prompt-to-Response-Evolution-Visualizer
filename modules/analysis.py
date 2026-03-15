@@ -13,7 +13,6 @@ import pandas as pd
 from textblob import TextBlob
 from typing import List, Dict
 
-# Ensure required NLTK data is available
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
